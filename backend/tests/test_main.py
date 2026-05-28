@@ -4,7 +4,7 @@ import threading
 from http.server import HTTPServer
 
 # Importujemy handler i port z Twojego pliku main.py
-from main import SimpleHandler, PORT
+from src.main import SimpleHandler, PORT
 
 
 class TestSimpleServer(unittest.TestCase):
