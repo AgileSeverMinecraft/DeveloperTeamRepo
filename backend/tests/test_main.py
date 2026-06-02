@@ -1,43 +1,18 @@
-import unittest
-import urllib.request
-import threading
-from http.server import HTTPServer
+from fastapi.testclient import TestClient
 
-# Importujemy handler i port z Twojego pliku main.py
-from src.main import SimpleHandler, PORT
+# Importujemy naszą aplikację z folderu src
+from src.main import app
 
-
-class TestSimpleServer(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        # Uruchamiamy serwer przed wszystkimi testami w osobnym wątku (tzw. demonie)
-        cls.server = HTTPServer(('localhost', PORT), SimpleHandler)
-        cls.server_thread = threading.Thread(target=cls.server.serve_forever)
-        cls.server_thread.daemon = True
-        cls.server_thread.start()
-
-    @classmethod
-    def tearDownClass(cls):
-        # Wyłączamy serwer po zakończeniu wszystkich testów
-        cls.server.shutdown()
-        cls.server.server_close()
-        cls.server_thread.join()
-
-    def test_hello_world_response(self):
-        # Definiujemy adres, pod który uderzamy
-        url = f"http://localhost:{PORT}/"
-
-        # Wysyłamy żądanie GET
-        with urllib.request.urlopen(url) as response:
-            # 1. Sprawdzamy, czy serwer zwraca kod 200 OK
-            self.assertEqual(response.status, 200)
-
-            # 2. Odczytujemy i dekodujemy treść odpowiedzi
-            body = response.read().decode('utf-8')
-
-            # 3. Sprawdzamy poprawność komunikatu
-            self.assertEqual(body, "Hello World")
+# Tworzymy klienta testowego
+client = TestClient(app)
 
 
-if __name__ == "__main__":
-    unittest.main()
+def test_read_root():
+    # Wykonanie żądania GET do endpointa "/"
+    response = client.get("/")
+
+    # 1. Sprawdzenie, czy serwer odpowiada kodem 200 (OK)
+    assert response.status_code == 200
+
+    # 2. Sprawdzenie, czy odpowiedź to wymagany JSON
+    assert response.json() == {"message": "Hello World"}

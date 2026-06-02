@@ -1,22 +1,13 @@
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from fastapi import FastAPI
+import uvicorn
 
-# Numer portu: 8000
-PORT = 8000
+# Inicjalizacja aplikacji FastAPI
+app = FastAPI(title="Minecraft Server API")
 
-class SimpleHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.send_header('Content-type', 'text/plain')
-        self.end_headers()
-        # Treść odpowiedzi
-        self.wfile.write(b"Hello World")
+# Endpoint główny zwracający JSON zgodnie z kryteriami akceptacji
+@app.get("/")
+def read_root():
+    return {"message": "Hello World"}
 
-def run():
-    server_address = ('localhost', PORT)
-    httpd = HTTPServer(server_address, SimpleHandler)
-    print(f"Serwer startuje na http://localhost:{PORT}")
-    httpd.serve_forever()
-    # Odpowiedz - curl http://localhost:8000
-
-if __name__ == "__main__":
-    run()
+# Uruchamiamy poleceniem:
+# uv run uvicorn src.main:app --reload
