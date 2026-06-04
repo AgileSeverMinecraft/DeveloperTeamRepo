@@ -33,3 +33,19 @@ def test_read_status():
 
     # 4. Sprawdzenie, czy klucz timestamp w ogóle istnieje w odpowiedzi
     assert "timestamp" in data
+
+def test_read_player_positive():
+    response = client.get("/player/123e4567-e89b-12d3-a456-426614174000")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["uuid"] == "123e4567-e89b-12d3-a456-426614174000"
+    assert data["username"] == "MineCrafter_99"
+    assert data["coins"] == 1550
+
+def test_read_player_negative():
+    response = client.get("/player/abc")
+
+    assert response.status_code == 404
