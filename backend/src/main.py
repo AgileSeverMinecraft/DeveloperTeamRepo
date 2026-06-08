@@ -1,6 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from datetime import datetime
 import uvicorn
+import uuid
 
 # Inicjalizacja aplikacji FastAPI
 app = FastAPI(
@@ -29,5 +30,20 @@ def read_status():
         "timestamp": datetime.now().isoformat()
     }
 
+@app.get("/player/{uuid_str}")
+def get_player_stats(uuid_str: str):
+    # Walidacja formatu UUID
+    try:
+        uuid.UUID(uuid_str)
+    except ValueError:
+        # Jeśli format jest niepoprawny, zwracamy błąd 404
+        raise HTTPException(status_code=404, detail="Invalid UUID format")
+    
+    # Zhardkodowane (mockowane) dane gracza
+    return {
+        "uuid": uuid_str,
+        "username": "MineCrafter_99",
+        "coins": 1550
+    }
 # Uruchamiamy poleceniem:
 # uv run uvicorn src.main:app --reload
