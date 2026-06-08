@@ -33,3 +33,9 @@ def test_read_status():
 
     # 4. Sprawdzenie, czy klucz timestamp w ogóle istnieje w odpowiedzi
     assert "timestamp" in data
+
+# Test dla dokumentacji Swagger UI
+def test_swagger_ui():
+    response = client.get("/docs")
+    assert response.status_code == 200
+    assert "text/html" in response.headers["content-type"]
