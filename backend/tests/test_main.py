@@ -34,6 +34,12 @@ def test_read_status():
     # 4. Sprawdzenie, czy klucz timestamp w ogóle istnieje w odpowiedzi
     assert "timestamp" in data
 
+# Test dla dokumentacji Swagger UI
+def test_swagger_ui():
+    response = client.get("/docs")
+    assert response.status_code == 200
+    assert "text/html" in response.headers["content-type"]
+    
 def test_read_player_positive():
     response = client.get("/player/123e4567-e89b-12d3-a456-426614174000")
 
