@@ -1,13 +1,35 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from datetime import datetime
 import uvicorn
 import uuid
+import logging
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(levelname)s:\t%(asctime)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 
 # Inicjalizacja aplikacji FastAPI
 app = FastAPI(
     title="Minecraft Server API",
     description="API do zarządzania i monitorowania statusu serwera Minecraft."
 )
+
+# Middleware do logowania wszystkich żądań i odpowiedzi serwera
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    response = await call_next(request)
+
+    logger.info(
+        "%s %s %s",
+        request.method,
+        request.url.path,
+        response.status_code,
+    )
+
+    return response
 
 # Endpoint główny zwracający JSON zgodnie z kryteriami akceptacji
 @app.get("/")
@@ -46,4 +68,4 @@ def get_player_stats(uuid_str: str):
         "coins": 1550
     }
 # Uruchamiamy poleceniem:
-# uv run uvicorn src.main:app --reload
+# uv run uvicorn src.main:app --reload --no-access-log
