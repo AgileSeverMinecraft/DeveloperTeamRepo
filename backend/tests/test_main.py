@@ -55,3 +55,56 @@ def test_read_player_negative():
     response = client.get("/player/abc")
 
     assert response.status_code == 404
+
+def test_update_player_stats_positive():
+    response = client.post(
+        "/player/update",
+        json={
+            "uuid": "123e4567-e89b-12d3-a456-426614174000",
+            "stat_name": "coins",
+            "value": 100
+        }
+    )
+
+    assert response.status_code == 201
+
+    data = response.json()
+
+    assert data["message"] == "Player statistics updated"
+    assert data["stat_name"] == "coins"
+    assert data["value"] == 100
+
+def test_update_player_stats_invalid_uuid():
+    response = client.post(
+        "/player/update",
+        json={
+            "uuid": "abc",
+            "stat_name": "coins",
+            "value": 100
+        }
+    )
+
+    assert response.status_code == 422
+
+def test_update_player_stats_invalid_value():
+    response = client.post(
+        "/player/update",
+        json={
+            "uuid": "123e4567-e89b-12d3-a456-426614174000",
+            "stat_name": "coins",
+            "value": "abc"
+        }
+    )
+
+    assert response.status_code == 422
+
+def test_update_player_stats_missing_field():
+    response = client.post(
+        "/player/update",
+        json={
+            "uuid": "123e4567-e89b-12d3-a456-426614174000",
+            "value": 100
+        }
+    )
+
+    assert response.status_code == 422
