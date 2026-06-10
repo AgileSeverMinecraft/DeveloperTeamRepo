@@ -3,6 +3,12 @@ from datetime import datetime
 import uvicorn
 import uuid
 import logging
+from pydantic import BaseModel
+from pathlib import Path
+import json
+
+STATS_FILE = Path("stats.json")
+
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -16,6 +22,12 @@ app = FastAPI(
     title="Minecraft Server API",
     description="API do zarządzania i monitorowania statusu serwera Minecraft."
 )
+
+# Model danych do aktualizacji statystyk gracza
+class PlayerStatUpdate(BaseModel):
+    uuid: uuid.UUID
+    stat_name: str
+    value: int
 
 # Middleware do logowania wszystkich żądań i odpowiedzi serwera
 @app.middleware("http")
@@ -67,5 +79,33 @@ def get_player_stats(uuid_str: str):
         "username": "MineCrafter_99",
         "coins": 1550
     }
+
+
+@app.post("/player/update", status_code=201)
+def update_player_stats(stat: PlayerStatUpdate):
+    if STATS_FILE.exists():
+        with open(STATS_FILE, "r") as f:
+            stats = json.load(f)
+    else:
+        stats = {}
+
+    player_id = str(stat.uuid)
+
+    if player_id not in stats:
+        stats[player_id] = {}
+
+    stats[player_id][stat.stat_name] = stat.value
+
+    with open(STATS_FILE, "w") as f:
+        json.dump(stats, f, indent=4)
+
+    return {
+    "message": "Player statistics updated",
+    "uuid": str(stat.uuid),
+    "stat_name": stat.stat_name,
+    "value": stat.value
+}
+
+
 # Uruchamiamy poleceniem:
 # uv run uvicorn src.main:app --reload --no-access-log
